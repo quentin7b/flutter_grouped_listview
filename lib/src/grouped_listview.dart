@@ -97,6 +97,21 @@ class GroupedListView<H, I> extends StatelessWidget {
   /// Set the [TextBaseline] of the [Column] used to display the [H] header and its [List] of [I] items
   final TextBaseline? itemsTextBaseline;
 
+  /// Created a [GroupedListView] with all the customized parametes you want
+  ///
+  /// Using this constructor, you'll have to provide the [itemsBuilder]
+  /// which is a [Function] that helps build the the List of items.
+  ///
+  /// Be aware, if you want to build a fully customized header + List item, you
+  /// can provide a [customBuilder], but if you do so, let [headerBuilder] and
+  /// [itemsBuilder] to null.
+  ///
+  /// Also, as by default, a [ListView] is used, you can customise it using all
+  /// the parameters you need (see [ListView]'s documentation)
+  ///
+  /// Last but not least, if you do not provide a [customBuilder], you can customise
+  /// the default [Column] used to display the [H] headers and [List] of [I] items.
+  /// All of the fields are prefixed by `items` ([itemsMainAxisAlignment], [itemsMainAxisSize], ...)
   GroupedListView(
       {Key? key,
       // GroupedListView params
@@ -144,6 +159,17 @@ class GroupedListView<H, I> extends StatelessWidget {
     }
   }
 
+  /// Created a [GroupedListView] with your [List] of [I] displayed in a [ListView]
+  ///
+  /// Using this constructor, you'll have to provide the [listItemBuilder]
+  /// which is a [Function] that helps build the the List of items.
+  ///
+  /// Also, as by default, a [ListView] is used, you can customise it using all
+  /// the parameters you need (see [ListView]'s documentation)
+  ///
+  /// Last but not least, if you do not provide a [customBuilder], you can customise
+  /// the default [Column] used to display the [H] headers and [List] of [I] items.
+  /// All of the fields are prefixed by `items` ([itemsMainAxisAlignment], [itemsMainAxisSize], ...)
   GroupedListView.list({
     Key? key,
     // GroupedListView params
@@ -206,6 +232,21 @@ class GroupedListView<H, I> extends StatelessWidget {
           clipBehavior: clipBehavior,
         );
 
+  /// Created a [GroupedListView] with your [List] of [I] displayed in a [GridView]
+  ///
+  /// Using this constructor, you'll have to provide the [gridItemBuilder]
+  /// which is a [Function] that helps build the the List of items.
+  /// You also have to provide at least a [crossAxisCount] to fix the number of items in the axis.
+  ///
+  /// If you want more customization of the [GridView] you can (not mandatory) use also
+  /// [crossAxisSpacing], [mainAxisSpacing] and [itemsAspectRatio]
+  ///
+  /// Also, as by default, a [ListView] is used, you can customise it using all
+  /// the parameters you need (see [ListView]'s documentation)
+  ///
+  /// Last but not least, if you do not provide a [customBuilder], you can customise
+  /// the default [Column] used to display the [H] headers and [List] of [I] items.
+  /// All of the fields are prefixed by `items` ([itemsMainAxisAlignment], [itemsMainAxisSize], ...)
   GroupedListView.grid({
     Key? key,
     // GroupedListView params
