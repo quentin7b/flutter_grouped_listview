@@ -1,5 +1,7 @@
 # Flutter Simple Grouped ListView
 
+![Pub Version](https://img.shields.io/pub/v/simple_grouped_listview)
+
 `simple_grouped_listview` is a package that helps you display grouped item in a listview
 
 ## Usecase
