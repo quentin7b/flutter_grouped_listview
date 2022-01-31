@@ -49,6 +49,11 @@ class MyHomePage extends StatelessWidget {
             onPressed: () => Navigator.push(
                 context, MaterialPageRoute(builder: (_) => const StickyPage())),
           ),
+          ElevatedButton(
+            child: const Text('Horizontal Page'),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => const HorizontalPage())),
+          ),
         ],
       ),
     );
@@ -215,6 +220,38 @@ class StickyPage extends StatelessWidget {
         },
         itemGrouper: (int i) => i.isEven,
         itemsCrossAxisAlignment: CrossAxisAlignment.center,
+      ),
+    );
+  }
+}
+
+class HorizontalPage extends StatelessWidget {
+  const HorizontalPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text(
+              'GroupedListView.list() GroupedListView horizontal Page')),
+      body: GroupedListView.list(
+        shrinkWrap: true,
+        scrollDirection: Axis.horizontal,
+        items: List<int>.generate(100, (index) => index + 1),
+        itemGrouper: (int i) => i.isEven,
+        headerBuilder: (context, bool isEven) => Text(isEven ? 'Even' : 'Odd'),
+        listItemBuilder:
+            (context, int countInGroup, int itemIndexInGroup, int item) =>
+                Container(
+          color: Color.fromARGB(
+            255,
+            ((128 / countInGroup) * itemIndexInGroup).toInt() + 127,
+            ((128 / countInGroup) * itemIndexInGroup).toInt() + 127,
+            ((128 / countInGroup) * itemIndexInGroup).toInt() + 127,
+          ),
+          child: Text(item.toRadixString(10), textAlign: TextAlign.center),
+          padding: const EdgeInsets.all(8),
+        ),
       ),
     );
   }
