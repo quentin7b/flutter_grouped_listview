@@ -1,5 +1,7 @@
 # Flutter Simple Grouped ListView
 
+![Pub Version](https://img.shields.io/pub/v/simple_grouped_listview)
+
 `simple_grouped_listview` is a package that helps you display grouped item in a listview
 
 ## Usecase
@@ -22,9 +24,9 @@ There are 4 main features exposed in this library.
 
 Using this 4 Widgets, you'll be able to do whatever you need to get some results like this:
 
-<img width="200" alt="Simple List" src="./raw/simple_list.gif">
-<img width="200" alt="Simple Grid" src="./raw/grid_list.gif">
-<img width="200" alt="Sticky List" src="./raw/sticky_list.gif">
+<img width="200" alt="Simple List" src="https://raw.githubusercontent.com/quentin7b/flutter_grouped_listview/main/raw/simple_list.gif">
+<img width="200" alt="Simple Grid" src="https://raw.githubusercontent.com/quentin7b/flutter_grouped_listview/main/raw/grid_list.gif">
+<img width="200" alt="Sticky List" src="https://raw.githubusercontent.com/quentin7b/flutter_grouped_listview/main/raw/sticky_list.gif">
 
 
 ## Installation 

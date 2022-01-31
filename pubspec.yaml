@@ -1,11 +1,12 @@
 name: simple_grouped_listview
-description: A Flutter package to display a grouped list of items
+description: |
+  A package to display a grouped list of items. Provide a List, a grouper, and let it display it as a ListView, a GridView or anything else. Grouped by headers.
 
 homepage: https://github.com/quentin7b/flutter_grouped_listview
 repository: https://github.com/quentin7b/flutter_grouped_listview
 issue_tracker: https://github.com/quentin7b/flutter_grouped_listview/issues
 
-version: 1.0.0
+version: 1.0.1
 publish_to: 
 
 environment:
