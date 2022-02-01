@@ -205,6 +205,7 @@ class GroupedListView<H, I> extends StatelessWidget {
           headerBuilder: headerBuilder,
           itemsBuilder: (context, List<I> items) {
             return ListView.builder(
+                scrollDirection: scrollDirection,
                 itemCount: items.length,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -287,6 +288,7 @@ class GroupedListView<H, I> extends StatelessWidget {
           headerBuilder: headerBuilder,
           itemsBuilder: (context, List<I> items) {
             return GridView.count(
+                scrollDirection: scrollDirection,
                 crossAxisCount: crossAxisCount,
                 shrinkWrap: true,
                 childAspectRatio: itemsAspectRatio,
@@ -350,18 +352,30 @@ class GroupedListView<H, I> extends StatelessWidget {
           if (customBuilder != null) {
             return customBuilder!(context, header, items);
           } else {
-            return Column(
-              mainAxisAlignment: itemsMainAxisAlignment,
-              mainAxisSize: itemsMainAxisSize,
-              crossAxisAlignment: itemsCrossAxisAlignment,
-              textDirection: itemsTextDirection,
-              verticalDirection: itemsVerticalDirection,
-              textBaseline: itemsTextBaseline,
-              children: [
-                headerBuilder!(context, header),
-                itemsBuilder!(context, items)
-              ],
-            );
+            return scrollDirection == Axis.vertical
+                ? Column(
+                    mainAxisAlignment: itemsMainAxisAlignment,
+                    mainAxisSize: itemsMainAxisSize,
+                    crossAxisAlignment: itemsCrossAxisAlignment,
+                    textDirection: itemsTextDirection,
+                    verticalDirection: itemsVerticalDirection,
+                    textBaseline: itemsTextBaseline,
+                    children: [
+                      headerBuilder!(context, header),
+                      itemsBuilder!(context, items)
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: itemsMainAxisAlignment,
+                    mainAxisSize: itemsMainAxisSize,
+                    crossAxisAlignment: itemsCrossAxisAlignment,
+                    textDirection: itemsTextDirection,
+                    verticalDirection: itemsVerticalDirection,
+                    textBaseline: itemsTextBaseline,
+                    children: [
+                        headerBuilder!(context, header),
+                        itemsBuilder!(context, items)
+                      ]);
           }
         });
   }

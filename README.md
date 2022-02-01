@@ -2,6 +2,8 @@
 
 ![Pub Version](https://img.shields.io/pub/v/simple_grouped_listview)
 
+See on [pub.dev](https://pub.dev/packages/simple_grouped_listview)
+
 `simple_grouped_listview` is a package that helps you display grouped item in a listview
 
 ## Usecase
