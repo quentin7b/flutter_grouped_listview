@@ -89,7 +89,7 @@ GroupedListView.list(
         padding: const EdgeInsets.all(16),
     ),
     listItemBuilder:
-        (context, int countInGroup, int itemIndexInGroup, int item) =>
+        (context, int countInGroup, int itemIndexInGroup, int item, int itemIndexInOriginalList) =>
             Container(
         child: Text(item.toRadixString(10), textAlign: TextAlign.center),
         padding: const EdgeInsets.all(8),
@@ -114,7 +114,7 @@ GroupedListView.grid(
         padding: const EdgeInsets.all(16),
     ),
     gridItemBuilder:
-        (context, int countInGroup, int itemIndexInGroup, int item) =>
+        (context, int countInGroup, int itemIndexInGroup, int item, int itemIndexInOriginalList) =>
             Container(
         child: Text(item.toRadixString(10), textAlign: TextAlign.center),
         padding: const EdgeInsets.all(8),
@@ -138,12 +138,12 @@ GroupedListView(
         ),
         padding: const EdgeInsets.all(16),
     ),
-    itemsBuilder: (context, List<int> items) => ListView.builder(
+    itemsBuilder: (context, List<IndexedItem<int>> items) => ListView.builder(
         itemCount: items.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, int index) => Container(
-            child: Text(items[index].toRadixString(10),
+            child: Text(items[index].item.toRadixString(10),
                 textAlign: TextAlign.center),
             padding: const EdgeInsets.all(8),
         ),
@@ -162,7 +162,7 @@ No worries, you can use a specific **constructor** to do so.
 ```dart
 GroupedListView(
     items: List<int>.generate(100, (index) => index + 1),
-    customBuilder: (context, bool isEvenHeader, List<int> items) => StickyHeader(
+    customBuilder: (context, bool isEvenHeader, List<<IndexedItem<int>> items) => StickyHeader(
         header: Container(
         color: Colors.amber,
         child: Text(
@@ -175,7 +175,7 @@ GroupedListView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, int index) => Container(
-                child: Text(items[index].toRadixString(10),
+                child: Text(items[index].item.toRadixString(10),
                     textAlign: TextAlign.center),
                 padding: const EdgeInsets.all(8),
             ),
@@ -185,7 +185,7 @@ GroupedListView(
 )
 ```
 
-> Using the `GroupedListView()` with a `customBuilder` helps you manage your UI with what you want the customBuilder being a Function that gives you a `BuildContext`, a `H` (your header type) and a `List<T>`
+> Using the `GroupedListView()` with a `customBuilder` helps you manage your UI with what you want the customBuilder being a Function that gives you a `BuildContext`, a `H` (your header type) and a `List<IndexedItem<T>>`
 
 
 ## Additional information
