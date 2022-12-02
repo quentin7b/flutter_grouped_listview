@@ -79,7 +79,7 @@ class CustomPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
           );
         },
-        itemsBuilder: (context, List<int> items) {
+        itemsBuilder: (context, List<IndexedItem<int>> items) {
           return ListView.builder(
               itemCount: items.length,
               shrinkWrap: true,
@@ -92,7 +92,7 @@ class CustomPage extends StatelessWidget {
                     ((128 / items.length) * index).toInt() + 127,
                     ((128 / items.length) * index).toInt() + 127,
                   ),
-                  child: Text(items[index].toRadixString(10),
+                  child: Text(items[index].item.toRadixString(10),
                       textAlign: TextAlign.center),
                   padding: const EdgeInsets.all(8),
                 );
@@ -125,7 +125,7 @@ class ListPage extends StatelessWidget {
           );
         },
         listItemBuilder:
-            (context, int countInGroup, int itemIndexInGroup, int item) =>
+            (context, int countInGroup, int itemIndexInGroup, int item, _) =>
                 Container(
           color: Color.fromARGB(
             255,
@@ -162,7 +162,7 @@ class GridPage extends StatelessWidget {
           );
         },
         gridItemBuilder:
-            (context, int countInGroup, int itemIndexInGroup, int item) =>
+            (context, int countInGroup, int itemIndexInGroup, int item, _) =>
                 Container(
           color: Color.fromARGB(
             255,
@@ -188,9 +188,10 @@ class StickyPage extends StatelessWidget {
     return Scaffold(
       appBar:
           AppBar(title: const Text('Custom GroupedListView with StickyHeader')),
-      body: GroupedListView(
+      body: GroupedListView<bool, int>(
         items: List<int>.generate(100, (index) => index + 1),
-        customBuilder: (context, bool isEvenHeader, List<int> items) {
+        customBuilder:
+            (context, bool isEvenHeader, List<IndexedItem<int>> items) {
           return StickyHeader(
               header: Container(
                 color: Colors.amber,
@@ -212,7 +213,7 @@ class StickyPage extends StatelessWidget {
                         ((128 / items.length) * index).toInt() + 127,
                         ((128 / items.length) * index).toInt() + 127,
                       ),
-                      child: Text(items[index].toRadixString(10),
+                      child: Text(items[index].item.toRadixString(10),
                           textAlign: TextAlign.center),
                       padding: const EdgeInsets.all(8),
                     );
@@ -241,7 +242,7 @@ class HorizontalPage extends StatelessWidget {
         itemGrouper: (int i) => i.isEven,
         headerBuilder: (context, bool isEven) => Text(isEven ? 'Even' : 'Odd'),
         listItemBuilder:
-            (context, int countInGroup, int itemIndexInGroup, int item) =>
+            (context, int countInGroup, int itemIndexInGroup, int item, _) =>
                 Container(
           color: Color.fromARGB(
             255,

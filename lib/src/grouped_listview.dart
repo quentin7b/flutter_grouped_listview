@@ -6,8 +6,51 @@ import "package:collection/collection.dart";
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-/// GroupedListView Widget
-///
+/// IndexedItem is used to keep a trace of the index of the item in the
+/// original List
+class IndexedItem<T> {
+  final T item;
+  final int indexInOriginalList;
+
+  IndexedItem({
+    required this.item,
+    required this.indexInOriginalList,
+  });
+}
+
+/// The [HeaderBuilder] is a function that render a header of type [H] as a
+/// [Widget], it takes a [BuildContext] and a [H] as parameters.
+/// It is used by [GroupedListView<H, I>] to render the headers of type [H]
+typedef HeaderBuilder<H> = Widget Function(
+  BuildContext context,
+  H header,
+);
+
+/// The [ItemsListBuilder] is a function that render a list of items of type [I]
+/// as a [Widget], it takes a [BuildContext] and a [List<IndexedItem<I>>]
+/// as parameters.
+typedef ItemsListBuilder<I> = Widget Function(
+  BuildContext context,
+  List<IndexedItem<I>> items,
+);
+
+/// The [ItemsWithHeaderBuilder] is a function that render a list of items of
+/// type [I] with their header as a [Widget], it takes a [BuildContext], a [H],
+/// and a [List<IndexedItem<I>>] as parameters.
+typedef ItemsWithHeaderBuilder<H, I> = Widget Function(
+  BuildContext context,
+  H header,
+  List<IndexedItem<I>> items,
+);
+
+/// [GroupedListView] Widget
+/// The goal of this widget is to take a list of items as an input, group
+/// them, and display them, grouped with a header
+/// In order to do that, it needs 4 things
+/// - A list of items
+/// - A function that groups this list of item given a certain criteria
+/// - A function that builds a header
+/// - A function that builds a list of items
 class GroupedListView<H, I> extends StatelessWidget {
   // Needed items
   /// List of the items you want to display grouped
@@ -16,11 +59,11 @@ class GroupedListView<H, I> extends StatelessWidget {
   /// Special [Widget] builder taking a [BuildContext] and a [H] header
   /// ([H] is defined by you in the [itemGrouper] parameter)
   /// This *must* be null if you pass a [customBuilder] parameter.
-  final Widget Function(BuildContext context, H header)? headerBuilder;
+  final HeaderBuilder<H>? headerBuilder;
 
   /// Special [Widget] builder taking a [BuildContext] and a [List] of [I] items
   /// This *must* be null if you pass a [customBuilder] parameter.
-  final Widget Function(BuildContext context, List<I> items)? itemsBuilder;
+  final ItemsListBuilder<I>? itemsBuilder;
 
   /// Special [Function] that takes a [I] and returns a [H].
   /// This function is used to create the groups of items.
@@ -31,8 +74,7 @@ class GroupedListView<H, I> extends StatelessWidget {
 
   /// Special [Widget] builder taking a [BuildContext], a [H] header and a [List] of [I] items.
   /// This *must* be null if you pass a [headerBuilder] and a [itemsBuilder] parameters.
-  final Widget Function(BuildContext context, H header, List<I> items)?
-      customBuilder;
+  final ItemsWithHeaderBuilder<H, I>? customBuilder;
 
   // Optional items for macro ListView
 
@@ -174,9 +216,9 @@ class GroupedListView<H, I> extends StatelessWidget {
     Key? key,
     // GroupedListView params
     required List<I> items,
-    required Widget Function(BuildContext context, H header) headerBuilder,
+    required HeaderBuilder<H> headerBuilder,
     required Widget Function(BuildContext context, int itemCountInGroup,
-            int itemIndexInGroup, I item)
+            int itemIndexInGroup, I item, int itemIndexInOriginalList)
         listItemBuilder,
     required H Function(I item) itemGrouper,
     Comparator<H>? headerSorter,
@@ -203,14 +245,20 @@ class GroupedListView<H, I> extends StatelessWidget {
           // GroupedListView params
           items: items,
           headerBuilder: headerBuilder,
-          itemsBuilder: (context, List<I> items) {
+          itemsBuilder: (context, List<IndexedItem> items) {
             return ListView.builder(
-                scrollDirection: scrollDirection,
-                itemCount: items.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, int index) => listItemBuilder(
-                    context, items.length, index, items[index]));
+              scrollDirection: scrollDirection,
+              itemCount: items.length,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, int index) => listItemBuilder(
+                context,
+                items.length,
+                index,
+                items[index].item,
+                items[index].indexInOriginalList,
+              ),
+            );
           },
           itemGrouper: itemGrouper,
           headerSorter: headerSorter,
@@ -252,9 +300,9 @@ class GroupedListView<H, I> extends StatelessWidget {
     Key? key,
     // GroupedListView params
     required List<I> items,
-    required Widget Function(BuildContext context, H header) headerBuilder,
+    required HeaderBuilder<H> headerBuilder,
     required Widget Function(BuildContext context, int itemCountInGroup,
-            int itemIndexInGroup, I item)
+            int itemIndexInGroup, I item, int itemIndexInOriginalList)
         gridItemBuilder,
     required H Function(I item) itemGrouper,
     Comparator<H>? headerSorter,
@@ -286,7 +334,7 @@ class GroupedListView<H, I> extends StatelessWidget {
           // GroupedListView params
           items: items,
           headerBuilder: headerBuilder,
-          itemsBuilder: (context, List<I> items) {
+          itemsBuilder: (context, List<IndexedItem> items) {
             return GridView.count(
                 scrollDirection: scrollDirection,
                 crossAxisCount: crossAxisCount,
@@ -296,8 +344,15 @@ class GroupedListView<H, I> extends StatelessWidget {
                 mainAxisSpacing: mainAxisSpacing,
                 physics: const NeverScrollableScrollPhysics(),
                 children: items
-                    .mapIndexed((inex, item) =>
-                        gridItemBuilder(context, items.length, inex, item))
+                    .mapIndexed(
+                      (index, item) => gridItemBuilder(
+                        context,
+                        items.length,
+                        index,
+                        item.item,
+                        item.indexInOriginalList,
+                      ),
+                    )
                     .toList());
           },
           itemGrouper: itemGrouper,
@@ -323,60 +378,79 @@ class GroupedListView<H, I> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<H, List<I>> groupedItems = groupBy(items, itemGrouper);
+    final Map<H, List<IndexedItem<I>>> groupedItems = _generateGroupedList();
     List<H> keys = groupedItems.keys.toList();
     if (headerSorter != null) {
       keys.sort(headerSorter);
     }
     return ListView.builder(
-        scrollDirection: scrollDirection,
-        reverse: reverse,
-        controller: controller,
-        primary: primary,
-        physics: physics,
-        shrinkWrap: shrinkWrap,
-        padding: padding,
-        addAutomaticKeepAlives: addAutomaticKeepAlives,
-        addRepaintBoundaries: addRepaintBoundaries,
-        addSemanticIndexes: addSemanticIndexes,
-        cacheExtent: cacheExtent,
-        semanticChildCount: semanticChildCount,
-        dragStartBehavior: dragStartBehavior,
-        keyboardDismissBehavior: keyboardDismissBehavior,
-        restorationId: restorationId,
-        clipBehavior: clipBehavior,
-        itemCount: keys.length,
-        itemBuilder: (context, index) {
-          H header = keys[index];
-          List<I> items = groupedItems[header]!;
-          if (customBuilder != null) {
-            return customBuilder!(context, header, items);
-          } else {
-            return scrollDirection == Axis.vertical
-                ? Column(
-                    mainAxisAlignment: itemsMainAxisAlignment,
-                    mainAxisSize: itemsMainAxisSize,
-                    crossAxisAlignment: itemsCrossAxisAlignment,
-                    textDirection: itemsTextDirection,
-                    verticalDirection: itemsVerticalDirection,
-                    textBaseline: itemsTextBaseline,
-                    children: [
+      scrollDirection: scrollDirection,
+      reverse: reverse,
+      controller: controller,
+      primary: primary,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      padding: padding,
+      addAutomaticKeepAlives: addAutomaticKeepAlives,
+      addRepaintBoundaries: addRepaintBoundaries,
+      addSemanticIndexes: addSemanticIndexes,
+      cacheExtent: cacheExtent,
+      semanticChildCount: semanticChildCount,
+      dragStartBehavior: dragStartBehavior,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      restorationId: restorationId,
+      clipBehavior: clipBehavior,
+      itemCount: keys.length,
+      itemBuilder: (context, index) {
+        H header = keys[index];
+        List<IndexedItem<I>> items = groupedItems[header]!;
+        if (customBuilder != null) {
+          return customBuilder!(context, header, items);
+        } else {
+          return scrollDirection == Axis.vertical
+              ? Column(
+                  mainAxisAlignment: itemsMainAxisAlignment,
+                  mainAxisSize: itemsMainAxisSize,
+                  crossAxisAlignment: itemsCrossAxisAlignment,
+                  textDirection: itemsTextDirection,
+                  verticalDirection: itemsVerticalDirection,
+                  textBaseline: itemsTextBaseline,
+                  children: [
+                    headerBuilder!(context, header),
+                    itemsBuilder!(context, items)
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: itemsMainAxisAlignment,
+                  mainAxisSize: itemsMainAxisSize,
+                  crossAxisAlignment: itemsCrossAxisAlignment,
+                  textDirection: itemsTextDirection,
+                  verticalDirection: itemsVerticalDirection,
+                  textBaseline: itemsTextBaseline,
+                  children: [
                       headerBuilder!(context, header),
                       itemsBuilder!(context, items)
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: itemsMainAxisAlignment,
-                    mainAxisSize: itemsMainAxisSize,
-                    crossAxisAlignment: itemsCrossAxisAlignment,
-                    textDirection: itemsTextDirection,
-                    verticalDirection: itemsVerticalDirection,
-                    textBaseline: itemsTextBaseline,
-                    children: [
-                        headerBuilder!(context, header),
-                        itemsBuilder!(context, items)
-                      ]);
-          }
-        });
+                    ]);
+        }
+      },
+    );
+  }
+
+  Map<H, List<IndexedItem<I>>> _generateGroupedList() {
+    Map<H, List<IndexedItem<I>>> groupedItems = {};
+    int index = 0;
+    while (index < items.length) {
+      I item = items[index];
+      H itemHeader = itemGrouper(item);
+      IndexedItem<I> indexedItem =
+          IndexedItem(item: item, indexInOriginalList: index);
+      if (!groupedItems.containsKey(itemHeader)) {
+        groupedItems.putIfAbsent(
+            itemHeader, () => List<IndexedItem<I>>.empty(growable: true));
+      }
+      groupedItems[itemHeader]!.add(indexedItem);
+      index = index + 1;
+    }
+    return groupedItems;
   }
 }
